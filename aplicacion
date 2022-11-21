@@ -1,0 +1,92 @@
+public class Constants {
+     public static final float VIEWPORT_WIDTH = 5.0f;
+     public static final String REST_URL = "http://www.ejemplo.com/api";
+}
+
+public class MyLog {
+    // Cambiar a 'false' para deshabilitar el Log de la aplicación
+    static final boolean DEBUG = true;
+
+    public static void i(String tag, String string) {
+        if (DEBUG) android.util.Log.i(tag, string);
+    }
+
+    public static void e(String tag, String string) {
+        if (DEBUG) android.util.Log.e(tag, string);
+    }
+
+    public static void d(String tag, String string) {
+        if (DEBUG) android.util.Log.d(tag, string);
+    }
+
+    public static void v(String tag, String string) {
+        if (DEBUG) android.util.Log.v(tag, string);
+    }
+
+    public static void w(String tag, String string) {
+        if (DEBUG) android.util.Log.w(tag, string);
+    }
+}
+
+@Override
+public void onBackPressed() {
+   // Asignar la acción necesaria. En este caso terminar la actividad
+   finish();
+}
+
+Toolbar toolbar = (Toolbar) findViewById(R.id.toolbarSobreNosotros);
+if (toolbar != null) {
+    setSupportActionBar(toolbar);
+    getSupportActionBar().setDisplayHomeAsUpEnabled(true);
+    getSupportActionBar().setDisplayShowHomeEnabled(true);
+    getSupportActionBar().setTitle(getResources().getString(R.string.app_name));
+    toolbar.setNavigationOnClickListener(new View.OnClickListener() {
+        @Override
+        public void onClick(View v) {
+            // Asignar la acción necesaria. En este caso "volver atrás"
+            onBackPressed();
+        }
+    });
+} else {
+    Log.d("SobreNosotros", "Error al cargar toolbar");
+}
+
+try {
+   // Hacer la conexión y leer el contenido línea a línea
+   URL url = new URL("http://www.ticarte.com/rest/10");
+   HttpURLConnection urlConnection = (HttpURLConnection) url.openConnection();
+
+   InputStream in = new BufferedInputStream(urlConnection.getInputStream());
+   BufferedReader reader = new BufferedReader(new InputStreamReader(in));
+
+   String line;
+   StringBuilder content = new StringBuilder();
+   while ((line = reader.readLine()) != null) {
+      content.append(line);
+   }
+
+   // Crear un objeto del contenido JSON completo
+   JSONObject jsoncompleto = new JSONObject(content.toString());
+
+   // Comprobar si existe un elemento
+   if (jsoncompleto.has("acontecimiento")) {
+      // Crear un objeto JSON a partir de dicho elemento
+      JSONObject jsonacontecimiento = new JSONObject(jsoncompleto.getString("acontecimiento"));
+      // Recuperar un elemento del objeto anterior
+      Log.d("JSON", (jsonacontecimiento.has("nombre")) ? jsonacontecimiento.getString("nombre") : "No existe nombre");
+
+      if (jsoncompleto.has("eventos")) { 
+         // Crear un array JSON a partir de un elemento que sea array
+         JSONArray jsoneventos = new JSONArray(jsoncompleto.getString("eventos"));
+
+         // Recorrer el array JSON para recuperar sus elementos
+         for (int n = 0; n < jsoneventos.length(); n++) {
+            JSONObject jsonevento = jsoneventos.getJSONObject(n);
+            Log.d("JSON", jsonevento.getString("nombreevento"));
+      }
+   } else {
+      Log.d("JSON", "No existe acontecimiento");
+   }
+} catch (Exception e) {
+   Log.d("JSON", e.toString());
+}
